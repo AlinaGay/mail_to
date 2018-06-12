@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<body onload="GenerateCaptcha()">
+
+<script type="text/javascript">
+
+    function validate() {
+        var result = true;
+        var inputs = document.getElementsByTagName("input");
+        for (var i = 0; i < inputs.length; i++) {
+            var field = inputs[i];
+            if (field.type != "submit" && field.type != "button" && field.id != "txtCompare") {
+                result = result && field.checkValidity(); //встроенная валидация
+            }
+        }
+        result = result && validateCaptcha();
+        if (result) {
+            document.getElementById("inputForm").style.display = "none";
+            displayResults();
+        }
+    }
+
+    function displayResults() {
+        var parentDiv = document.createElement('div');
+        document.body.appendChild(parentDiv);
+        var h2 = document.createElement('h2');
+        h2.appendChild(document.createTextNode('Благодарим за заполнение формы!'));
+        parentDiv.appendChild(h2);
+
+        var inputs = document.getElementsByTagName("input");
+        for (var i = 0; i < inputs.length; i++) {
+            var field = inputs[i];
+            if (field.type != "submit" && field.type != "button" && field.id != "txtCompare" && field.id != "txtCaptcha") {
+                createOutput(parentDiv,field);
+            }
+        }
+    }
+
+    function createOutput(parent,field) {
+        var parentDiv = document.createElement('div');
+        parent.appendChild(parentDiv);
+        var label=document.createElement('label');
+        label.setAttribute('for',field.id+'Output');
+        label.appendChild(document.createTextNode(findLableForControl(field)));
+        parentDiv.appendChild(label);
+
+        var fieldOutput = document.createElement('output');
+        fieldOutput.setAttribute('id',field.id+'Output');
+        fieldOutput.value = field.value;
+        parentDiv.appendChild(fieldOutput);
+    }
+
+    function findLableForControl(el) {
+        var idVal = el.id;
+        labels = document.getElementsByTagName('label');
+        for( var i = 0; i < labels.length; i++ ) {
+            if (labels[i].htmlFor == idVal)
+                return labels[i].innerText.replace('*','')+' : ';
+        }
+    }
+
+    / Function to Generat Captcha /
+    function GenerateCaptcha() {
+        var chr1 = Math.ceil(Math.random() * 10)+ '';
+        var chr2 = Math.ceil(Math.random() * 10)+ '';
+        var chr3 = Math.ceil(Math.random() * 10)+ '';
+        var chr4 = Math.ceil(Math.random() * 10)+ '';
+        var chr5 = Math.ceil(Math.random() * 10)+ '';
+        var chr6 = Math.ceil(Math.random() * 10)+ '';
+        var chr7 = Math.ceil(Math.random() * 10)+ '';
+        var captchaCode = chr1 + ' ' + chr2 + ' ' + chr3 + ' ' + chr4 + ' ' + chr5 + ' '+ chr6 + ' ' + chr7;
+        document.getElementById("txtCaptcha").value = captchaCode
+    }
+    / Validating Captcha Function /
+    function ValidCaptcha() {
+        var str1 = removeSpaces(document.getElementById('txtCaptcha').value);
+        var str2 = removeSpaces(document.getElementById('txtCompare').value);
+        if (str1 == str2) return true;
+        return false;
+    }
+    / Remove spaces from Captcha Code /
+    function removeSpaces(string) {
+        return string.split(' ').join('');
+    }
+
+    function validateCaptcha(){
+        document.getElementById("txtCaptchaError").innerHTML=null;
+        if (!ValidCaptcha()) {
+            document.getElementById("txtCaptchaError").innerHTML="  captha value is invalid";
+        }
+        return ValidCaptcha();
+    }
+
+</script>
+
+
+<div id="inputForm">
+
+    <h1>Письмо посетителя сайта</h1>
+    <p>В Координационный центр Сети КонсультантПлюс<br>
+        117292, Москва, ул. Кржижановского, д. 6<br>
+        тел./факс +7 495 956-82-83, +7 495 787-92-92<br><br>
+        Поля, отмеченные звёздочкой, обязательны к заполнению<br><br>
+        <strong>Куда</strong> Отдел внешних контактов
+    </p>
+
+    <form action="javascript:validate()" autocomplete="on">
+
+        <div>
+            <label for="theme">Тема</label>
+            <div>
+                <input type="text" id="theme" required/>
+            </div>
+        </div>
+
+        <div>
+            <label for="textletter">Текст письма</label>
+            <div>
+                <input type="textarea" id="textletter"/>
+            </div>
+        </div>
+
+        <div>
+            <label for="fio">Фамилия, имя, отчество *</label>
+            <div>
+                <input type="text" id="fio" required pattern="^[A-ZА-Я]{1}[a-zа-я]{1,29}"/>
+            </div>
+        </div>
+
+        <div>
+            <label for="city">Город *</label>
+            <div>
+                <input type="text" id="city" required pattern="^[А-Я]+[а-я]{0,10}$"/>
+            </div>
+        </div>
+
+        <div>
+            <label for="phone">Телефон с кодом города *</label>
+            <div>
+                <input type="tel" id="phone" required/>
+            </div>
+        </div>
+
+        <div>
+            <label for="email">E-mail *</label>
+            <div>
+                <input type="email" id="email" required/>
+            </div>
+        </div>
+
+        <div>
+            <label for="addInfo">Текст письма</label>
+            <div>
+                <input type="textarea" id="addInfo"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <input type="text" id="txtCaptcha"  name="txtCaptcha" style="text-align: center; border: none; font-weight: bold; font-family: Modern" />
+            <input type="button" id="btnrefresh" value="Refresh" onclick="GenerateCaptcha();" />
+            <input type="text" id="txtCompare" name="txtCompare" autocomplete="off"/>
+            <span id="txtCaptchaError" style="color:red"></span>
+        </div>
+
+        <input id="btnSubmit" type="submit" value="Отправить письмо"/>
+
+
+    </form>
+
+</div>
+
+</body>
+</html>
